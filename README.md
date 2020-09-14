@@ -19,6 +19,6 @@ python3 measure-eggs.py
 
 * Note: The images should contain a scale indicator on the left-hand-side.
 
-* The code was written to fulfill the requirements of a specific use case. So it might not work very smoothly for your images. Feel free to PR and make changes. :)
+* The code was written to fulfill the requirements of a specific use case. So it might not work as smoothly for your images. Feel free to PR and make changes. :)
 
 ![](Image_processing.gif)
