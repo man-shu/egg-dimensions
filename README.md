@@ -15,6 +15,10 @@ python3 measure-eggs.py
 
 * The script would output all the names of all the images in `toMeasure` directory as list and ask for the scale of the images. Input a number corresponding to the scale of the images.
 
+* The measured dimensions would be stored in a CSV file `egg_dimensions.csv` and the final images with dimension boxes around the eggs would be stored in a directory named `Measured`.
+
 * Note: The images should contain a scale indicator on the left-hand-side.
+
+* The code was written to fulfill a specific use case. So it might not work very smoothly for your images. Feel free to PR and make changes. :)
 
 ![](Image_processing.gif)
