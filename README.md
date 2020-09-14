@@ -2,6 +2,8 @@
 
 Measure *Drosophila* egg dimensions from images using OpenCV
 
+* Clone and extract the repository.
+
 * Install dependencies by running the shell script `install-dependencies.sh`:
 ```
 ./install-dependencies.sh
