@@ -6,7 +6,7 @@ Measure *Drosophila* egg dimensions from images using OpenCV
 ```
 ./install-dependencies.sh
 ```
-* Put images of the eggs to measured in the `toMeasure` directory
+* Put images of the eggs to be measured in the `toMeasure` directory.
 
 * Run the python script `measure-eggs.py`:
 ```
