@@ -1,6 +1,6 @@
 # egg-dimensions
 
-Measure *Drosophila* egg dimensions from images using OpenCV
+Measure *Drosophila* egg (or any other eggs with antennas ¯\_(ツ)_/¯) dimensions from images using OpenCV
 
 * Clone and extract the repository.
 
