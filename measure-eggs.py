@@ -157,6 +157,7 @@ for filename in files:
 		filewriter = csv.writer(csvfile, delimiter=',',
 			quotechar='|', quoting=csv.QUOTE_MINIMAL)
 		filewriter.writerow([filename,scale_length])
+		print('{}'.format(filename))
 		if len_boxes == 0:
 			print("Couldn't find any eggs :(")
 			filewriter.writerow([None, None])
