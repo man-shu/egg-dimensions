@@ -15,17 +15,14 @@ def get_contour_precedence(contour, cols):
 	return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
 def doIntersect(image,contour1,contour2):
-	blank = np.zeros(image.shape[0:2])
+	blank = np.zeros(image.shape[:2])
 	image_contour1 = cv2.drawContours(blank.copy(),[contour1],0,1,-1)
 	image_contour2 = cv2.drawContours(blank.copy(),[contour2],0,1,-1)
 	intersection_image = ((image_contour1+image_contour2)==2).astype(np.uint8)
 	intersection_contour, hier = cv2.findContours(intersection_image,
 		cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 
-	if len(intersection_contour) > 0:
-		return True
-	else:
-		return False
+	return len(intersection_contour) > 0
 
 def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
@@ -39,8 +36,7 @@ def create_circular_mask(h, w, center=None, radius=None):
 	Y, X = np.ogrid[:h, :w]
 	dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
 
-	mask = (dist_from_center <= radius).astype(np.uint8)
-	return mask
+	return (dist_from_center <= radius).astype(np.uint8)
 
 def unique2D_subarray(a):
 	dtype1 = np.dtype((np.void, a.dtype.itemsize * np.prod(a.shape[1:])))
@@ -58,7 +54,7 @@ scale_length = input()
 for filename in files:
 	
 	# load the image, convert it to grayscale, and blur it slightly
-	image = cv2.imread('./toMeasure/{}'.format(filename))
+	image = cv2.imread(f'./toMeasure/{filename}')
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	gray = cv2.GaussianBlur(gray, (21,21), 0)
 	# perform edge detection, then perform a dilation + erosion to
@@ -132,22 +128,19 @@ for filename in files:
 		count_overlaps = []
 		for rect2 in range(num_boxes):
 
-			if(doIntersect(edged,boxes[rect1],boxes[rect2])):
-				if cv2.contourArea(boxes[rect1])>cv2.contourArea(boxes[rect2]):
-					count_overlaps.append(rect2)
-					if len(count_overlaps)>2:
-						areas = []
-						for i in count_overlaps:
-							area_overlap =  areas.append(
-								abs(cv2.contourArea(boxes[rect1])-cv2.contourArea(boxes[i])))
-						rect2 = count_overlaps[areas.index(max(areas))]
-					boxes_kept.append(boxes[rect2])
-					dims_kept.append(dims[rect2])
-				else:
-					continue
-			else:
-				continue
-		if len(count_overlaps)==0:
+			if (doIntersect(edged, boxes[rect1], boxes[rect2])) and cv2.contourArea(
+				boxes[rect1]
+			) > cv2.contourArea(boxes[rect2]):
+				count_overlaps.append(rect2)
+				if len(count_overlaps)>2:
+					areas = []
+					for i in count_overlaps:
+						area_overlap =  areas.append(
+							abs(cv2.contourArea(boxes[rect1])-cv2.contourArea(boxes[i])))
+					rect2 = count_overlaps[areas.index(max(areas))]
+				boxes_kept.append(boxes[rect2])
+				dims_kept.append(dims[rect2])
+		if not count_overlaps:
 			boxes_kept.append(boxes[rect1])
 			dims_kept.append(dims[rect1])
 
@@ -157,7 +150,7 @@ for filename in files:
 		filewriter = csv.writer(csvfile, delimiter=',',
 			quotechar='|', quoting=csv.QUOTE_MINIMAL)
 		filewriter.writerow([filename,scale_length])
-		print('{}'.format(filename))
+		print(f'{filename}')
 		if len_boxes == 0:
 			print("Couldn't find any eggs :(")
 			filewriter.writerow([None, None])
@@ -169,30 +162,39 @@ for filename in files:
 
 				cv2.drawContours(image,[boxes_kept[i]],0,(0,0,255),1)
 
-				width = '{}mm'.format(str(dim[0]*scale)[:6])
-				height = '{}mm'.format(str(dim[1]*scale)[:6])
-				
-				if width>height:
-					temp_w = height
-					height = width
-					width = temp_w
+				width = f'{str(dim[0] * scale)[:6]}mm'
+				height = f'{str(dim[1] * scale)[:6]}mm'
 
+				if width>height:
+					height, width = width, height
 				box = perspective.order_points(boxes_kept[i])
 				(tl, tr, br, bl) = box
 				(tltrX, tltrY) = midpoint(tl, tr)
 				(tlblX, tlblY) = midpoint(tl, bl)
 
-				cv2.putText(image, '{}-{}'.format(i,width),
-					(int(tltrX-30), int(tltrY)), cv2.FONT_HERSHEY_SIMPLEX,
-					0.45, (0, 255, 0), 1)
-				cv2.putText(image, '{}-{}'.format(i,height),
-					(int(tlblX), int(tlblY)), cv2.FONT_HERSHEY_SIMPLEX,
-					0.45, (0, 0, 255), 1)
+				cv2.putText(
+					image,
+					f'{i}-{width}',
+					(int(tltrX - 30), int(tltrY)),
+					cv2.FONT_HERSHEY_SIMPLEX,
+					0.45,
+					(0, 255, 0),
+					1,
+				)
+				cv2.putText(
+					image,
+					f'{i}-{height}',
+					(int(tlblX), int(tlblY)),
+					cv2.FONT_HERSHEY_SIMPLEX,
+					0.45,
+					(0, 0, 255),
+					1,
+				)
 
 				filewriter.writerow([i,width, height])
-				print('{}-{},{}'.format(i,width,height))
+				print(f'{i}-{width},{height}')
 
-	cv2.imwrite('./Measured/{}'.format(filename), image) 
+	cv2.imwrite(f'./Measured/{filename}', image)
 	cv2.imshow('image',image)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
